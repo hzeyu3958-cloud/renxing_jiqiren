@@ -1,0 +1,1639 @@
+#VRML_SIM R2022b utf8
+
+PROTO MechaHumanoid21 [
+  field SFVec3f translation 0 0 0.65
+  field SFRotation rotation 0 0 1 0
+  field SFString name "MechaHumanoid21"
+  field SFString controller "stand_pose"
+  field SFBool locked FALSE
+  field SFBool supervisor FALSE
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    controller IS controller
+    locked IS locked
+    supervisor IS supervisor
+    selfCollision FALSE
+    children [
+      InertialUnit {
+        name "body_imu"
+      }
+      Shape {
+        appearance DEF RED_ARMOR PBRAppearance {
+          baseColor 0.8 0.02 0.015
+          metalness 0.65
+          roughness 0.28
+        }
+        geometry Mesh {
+          url [
+            "../meshes/pelvis.obj"
+          ]
+        }
+      }
+      Transform {
+        translation 0 0 -0.03
+        children [
+          Shape {
+            appearance DEF grayMetal PBRAppearance {
+              baseColor 0.55 0.55 0.55
+              roughness 0.35
+              metalness 0.5
+            }
+            geometry Box {
+              size 0.16 0.26 0.12
+            }
+          }
+        ]
+      }
+      Transform {
+        translation 0 0.145 -0.12
+        rotation 0 0 1 1.5708
+        children [
+          Shape {
+            appearance DEF darkJoint PBRAppearance {
+              baseColor 0.12 0.12 0.12
+              roughness 0.4
+              metalness 0.4
+            }
+            geometry Cylinder {
+              radius 0.046
+              height 0.11
+              subdivision 24
+            }
+          }
+        ]
+      }
+      Transform {
+        translation 0 -0.145 -0.12
+        rotation 0 0 1 1.5708
+        children [
+          Shape {
+            appearance USE darkJoint
+            geometry Cylinder {
+              radius 0.046
+              height 0.11
+              subdivision 24
+            }
+          }
+        ]
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0 0 0.09
+          axis 0 0 1
+          minStop -0.6
+          maxStop 0.6
+        }
+        device [
+          RotationalMotor {
+            name "waist_yaw"
+            minPosition -0.6
+            maxPosition 0.6
+            maxVelocity 4
+            maxTorque 80
+          }
+          PositionSensor {
+            name "waist_yaw_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0 0 0.09
+          name "waist_yaw_link"
+          children [
+            Transform {
+              translation 0 0 0
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Sphere {
+                    radius 0.052
+                    subdivision 2
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 0 -0.055
+              rotation 1 0 0 1.5708
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Cylinder {
+                    radius 0.034
+                    height 0.11
+                    subdivision 24
+                  }
+                }
+              ]
+            }
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                anchor 0 0 0
+                axis 0 1 0
+                minStop -0.4
+                maxStop 0.4
+              }
+              device [
+                RotationalMotor {
+                  name "waist_pitch"
+                  minPosition -0.4
+                  maxPosition 0.4
+                  maxVelocity 4
+                  maxTorque 80
+                }
+                PositionSensor {
+                  name "waist_pitch_sensor"
+                }
+              ]
+              endPoint Solid {
+                translation 0 0 0.19
+                name "torso"
+                children [
+                  Shape {
+                    appearance USE RED_ARMOR
+                    geometry Mesh {
+                      url [
+                        "../meshes/torso.obj"
+                      ]
+                    }
+                  }
+                  Transform {
+                    translation 0 0 0.03
+                    children [
+                      Shape {
+                        appearance USE grayMetal
+                        geometry Box {
+                          size 0.20 0.30 0.26
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.10
+                    rotation 1 0 0 1.5708
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Cylinder {
+                          radius 0.040
+                          height 0.12
+                          subdivision 24
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.055
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Sphere {
+                          radius 0.050
+                          subdivision 2
+                        }
+                      }
+                    ]
+                  }
+                  HingeJoint {
+                    jointParameters HingeJointParameters {
+                      anchor 0 0 0.19
+                      axis 0 0 1
+                      minStop -1.2
+                      maxStop 1.2
+                    }
+                    device [
+                      RotationalMotor {
+                        name "neck_yaw"
+                        minPosition -1.2
+                        maxPosition 1.2
+                        maxVelocity 5
+                        maxTorque 15
+                      }
+                      PositionSensor {
+                        name "neck_yaw_sensor"
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0 0 0.19
+                      name "neck_head_link"
+                      children [
+                        Transform {
+                          translation 0 0 -0.042
+                          children [
+                            Shape {
+                              appearance USE RED_ARMOR
+                              geometry Mesh {
+                                url [
+                                  "../meshes/neck.obj"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0.124118
+                          children [
+                            Shape {
+                              appearance USE RED_ARMOR
+                              geometry Mesh {
+                                url [
+                                  "../meshes/head.obj"
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0.014
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Sphere {
+                                radius 0.035
+                                subdivision 2
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 -0.038
+                          rotation 1 0 0 1.5708
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Cylinder {
+                                radius 0.025
+                                height 0.090
+                                subdivision 20
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 -0.095
+                          children [
+                            Shape {
+                              appearance USE grayMetal
+                              geometry Box {
+                                size 0.070 0.070 0.055
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                      boundingObject Box {
+                        size 0.24 0.20 0.34
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.55
+                      }
+                    }
+                  }
+                  HingeJoint {
+                    jointParameters HingeJointParameters {
+                      anchor 0.03 0.24 0.06
+                      axis 0 1 0
+                      minStop -1.8
+                      maxStop 1.8
+                    }
+                    device [
+                      RotationalMotor {
+                        name "left_shoulder_pitch"
+                        minPosition -1.8
+                        maxPosition 1.8
+                        maxVelocity 5
+                        maxTorque 35
+                      }
+                      PositionSensor {
+                        name "left_shoulder_pitch_sensor"
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0.03 0.24 0.06
+                      name "left_shoulder_pitch_link"
+                      children [
+                        Transform {
+                          translation 0 0 0
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Cylinder {
+                                radius 0.042
+                                height 0.10
+                                subdivision 24
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Sphere {
+                                radius 0.050
+                                subdivision 2
+                              }
+                            }
+                          ]
+                        }
+                        HingeJoint {
+                          jointParameters HingeJointParameters {
+                            anchor 0 0 0
+                            axis 1 0 0
+                            minStop -1.2
+                            maxStop 1.2
+                          }
+                          device [
+                            RotationalMotor {
+                              name "left_shoulder_roll"
+                              minPosition -1.2
+                              maxPosition 1.2
+                              maxVelocity 5
+                              maxTorque 35
+                            }
+                            PositionSensor {
+                              name "left_shoulder_roll_sensor"
+                            }
+                          ]
+                          endPoint Solid {
+                            name "left_shoulder_roll_link"
+                            children [
+                              HingeJoint {
+                                jointParameters HingeJointParameters {
+                                  anchor 0 0 0
+                                  axis 0 0 1
+                                  minStop -1.5
+                                  maxStop 1.5
+                                }
+                                device [
+                                  RotationalMotor {
+                                    name "left_shoulder_yaw"
+                                    minPosition -1.5
+                                    maxPosition 1.5
+                                    maxVelocity 5
+                                    maxTorque 30
+                                  }
+                                  PositionSensor {
+                                    name "left_shoulder_yaw_sensor"
+                                  }
+                                ]
+                                endPoint Solid {
+                                  translation 0.02 0 -0.10
+                                  name "left_upper_arm"
+                                  children [
+                                    Shape {
+                                      appearance USE RED_ARMOR
+                                      geometry Mesh {
+                                        url [
+                                          "../meshes/left_upper_arm.obj"
+                                        ]
+                                      }
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.055
+                                      children [
+                                        Shape {
+                                          appearance USE grayMetal
+                                          geometry Box {
+                                            size 0.075 0.070 0.145
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0 0.055
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.080 0.080 0.055
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.120
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Cylinder {
+                                            radius 0.040
+                                            height 0.095
+                                            subdivision 24
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    HingeJoint {
+                                      jointParameters HingeJointParameters {
+                                        anchor 0 0 -0.12
+                                        axis 0 1 0
+                                        minStop 0.0
+                                        maxStop 2.2
+                                      }
+                                      device [
+                                        RotationalMotor {
+                                          name "left_elbow_pitch"
+                                          minPosition 0
+                                          maxPosition 2.2
+                                          maxVelocity 5
+                                          maxTorque 25
+                                        }
+                                        PositionSensor {
+                                          name "left_elbow_pitch_sensor"
+                                        }
+                                      ]
+                                      endPoint Solid {
+                                        translation 0 0 -0.24
+                                        name "left_forearm"
+                                        children [
+                                          Shape {
+                                            appearance USE RED_ARMOR
+                                            geometry Mesh {
+                                              url [
+                                                "../meshes/left_forearm.obj"
+                                              ]
+                                            }
+                                          }
+                                          Transform {
+                                            translation 0 0 -0.010
+                                            children [
+                                              Shape {
+                                                appearance USE grayMetal
+                                                geometry Box {
+                                                  size 0.065 0.060 0.155
+                                                }
+                                              }
+                                            ]
+                                          }
+                                          Transform {
+                                            translation 0 0 0.090
+                                            children [
+                                              Shape {
+                                                appearance USE darkJoint
+                                                geometry Cylinder {
+                                                  radius 0.040
+                                                  height 0.090
+                                                  subdivision 24
+                                                }
+                                              }
+                                            ]
+                                          }
+                                          Transform {
+                                            translation 0 0 -0.105
+                                            children [
+                                              Shape {
+                                                appearance USE darkJoint
+                                                geometry Box {
+                                                  size 0.060 0.060 0.050
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                        boundingObject Box {
+                                          size 0.065 0.055 0.23
+                                        }
+                                        physics Physics {
+                                          density -1
+                                          mass 0.25
+                                        }
+                                      }
+                                    }
+                                  ]
+                                  boundingObject Box {
+                                    size 0.075 0.065 0.25
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.35
+                                  }
+                                }
+                              }
+                            ]
+                            boundingObject Box {
+                              size 0.055 0.055 0.055
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.03
+                            }
+                          }
+                        }
+                      ]
+                      boundingObject Box {
+                        size 0.07 0.07 0.07
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.04
+                      }
+                    }
+                  }
+                  HingeJoint {
+                    jointParameters HingeJointParameters {
+                      anchor 0.03 -0.24 0.06
+                      axis 0 1 0
+                      minStop -1.8
+                      maxStop 1.8
+                    }
+                    device [
+                      RotationalMotor {
+                        name "right_shoulder_pitch"
+                        minPosition -1.8
+                        maxPosition 1.8
+                        maxVelocity 5
+                        maxTorque 35
+                      }
+                      PositionSensor {
+                        name "right_shoulder_pitch_sensor"
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0.03 -0.24 0.06
+                      name "right_shoulder_pitch_link"
+                      children [
+                        Transform {
+                          translation 0 0 0
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Cylinder {
+                                radius 0.042
+                                height 0.10
+                                subdivision 24
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Sphere {
+                                radius 0.050
+                                subdivision 2
+                              }
+                            }
+                          ]
+                        }
+                        HingeJoint {
+                          jointParameters HingeJointParameters {
+                            anchor 0 0 0
+                            axis 1 0 0
+                            minStop -1.2
+                            maxStop 1.2
+                          }
+                          device [
+                            RotationalMotor {
+                              name "right_shoulder_roll"
+                              minPosition -1.2
+                              maxPosition 1.2
+                              maxVelocity 5
+                              maxTorque 35
+                            }
+                            PositionSensor {
+                              name "right_shoulder_roll_sensor"
+                            }
+                          ]
+                          endPoint Solid {
+                            name "right_shoulder_roll_link"
+                            children [
+                              HingeJoint {
+                                jointParameters HingeJointParameters {
+                                  anchor 0 0 0
+                                  axis 0 0 1
+                                  minStop -1.5
+                                  maxStop 1.5
+                                }
+                                device [
+                                  RotationalMotor {
+                                    name "right_shoulder_yaw"
+                                    minPosition -1.5
+                                    maxPosition 1.5
+                                    maxVelocity 5
+                                    maxTorque 30
+                                  }
+                                  PositionSensor {
+                                    name "right_shoulder_yaw_sensor"
+                                  }
+                                ]
+                                endPoint Solid {
+                                  translation 0.02 0 -0.10
+                                  name "right_upper_arm"
+                                  children [
+                                    Shape {
+                                      appearance USE RED_ARMOR
+                                      geometry Mesh {
+                                        url [
+                                          "../meshes/right_upper_arm.obj"
+                                        ]
+                                      }
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.055
+                                      children [
+                                        Shape {
+                                          appearance USE grayMetal
+                                          geometry Box {
+                                            size 0.075 0.070 0.145
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0 0.055
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.080 0.080 0.055
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.120
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Cylinder {
+                                            radius 0.040
+                                            height 0.095
+                                            subdivision 24
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    HingeJoint {
+                                      jointParameters HingeJointParameters {
+                                        anchor 0 0 -0.12
+                                        axis 0 1 0
+                                        minStop 0.0
+                                        maxStop 2.2
+                                      }
+                                      device [
+                                        RotationalMotor {
+                                          name "right_elbow_pitch"
+                                          minPosition 0
+                                          maxPosition 2.2
+                                          maxVelocity 5
+                                          maxTorque 25
+                                        }
+                                        PositionSensor {
+                                          name "right_elbow_pitch_sensor"
+                                        }
+                                      ]
+                                      endPoint Solid {
+                                        translation 0 0 -0.24
+                                        name "right_forearm"
+                                        children [
+                                          Shape {
+                                            appearance USE RED_ARMOR
+                                            geometry Mesh {
+                                              url [
+                                                "../meshes/right_forearm.obj"
+                                              ]
+                                            }
+                                          }
+                                          Transform {
+                                            translation 0 0 -0.010
+                                            children [
+                                              Shape {
+                                                appearance USE grayMetal
+                                                geometry Box {
+                                                  size 0.065 0.060 0.155
+                                                }
+                                              }
+                                            ]
+                                          }
+                                          Transform {
+                                            translation 0 0 0.090
+                                            children [
+                                              Shape {
+                                                appearance USE darkJoint
+                                                geometry Cylinder {
+                                                  radius 0.040
+                                                  height 0.090
+                                                  subdivision 24
+                                                }
+                                              }
+                                            ]
+                                          }
+                                          Transform {
+                                            translation 0 0 -0.105
+                                            children [
+                                              Shape {
+                                                appearance USE darkJoint
+                                                geometry Box {
+                                                  size 0.060 0.060 0.050
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                        boundingObject Box {
+                                          size 0.065 0.055 0.23
+                                        }
+                                        physics Physics {
+                                          density -1
+                                          mass 0.25
+                                        }
+                                      }
+                                    }
+                                  ]
+                                  boundingObject Box {
+                                    size 0.075 0.065 0.25
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.35
+                                  }
+                                }
+                              }
+                            ]
+                            boundingObject Box {
+                              size 0.055 0.055 0.055
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.03
+                            }
+                          }
+                        }
+                      ]
+                      boundingObject Box {
+                        size 0.07 0.07 0.07
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.04
+                      }
+                    }
+                  }
+                ]
+                boundingObject Box {
+                  size 0.24 0.30 0.34
+                }
+                physics Physics {
+                  density -1
+                  mass 3.0
+                }
+              }
+            }
+          ]
+          boundingObject Box {
+            size 0.08 0.12 0.05
+          }
+          physics Physics {
+            density -1
+            mass 0.08
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0 0.145 -0.12
+          axis 1 0 0
+          minStop -0.7
+          maxStop 0.7
+        }
+        device [
+          RotationalMotor {
+            name "left_hip_roll"
+            minPosition -0.7
+            maxPosition 0.7
+            maxVelocity 5
+            maxTorque 100
+          }
+          PositionSensor {
+            name "left_hip_roll_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0 0.145 -0.12
+          name "left_hip_roll_link"
+          children [
+            Transform {
+              translation 0 0 0
+              rotation 0 0 1 1.5708
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Cylinder {
+                    radius 0.050
+                    height 0.12
+                    subdivision 24
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 0 0
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Sphere {
+                    radius 0.055
+                    subdivision 2
+                  }
+                }
+              ]
+            }
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                anchor 0 0 0
+                axis 0 1 0
+                minStop -1.2
+                maxStop 1.2
+              }
+              device [
+                RotationalMotor {
+                  name "left_hip_pitch"
+                  minPosition -1.2
+                  maxPosition 1.2
+                  maxVelocity 5
+                  maxTorque 100
+                }
+                PositionSensor {
+                  name "left_hip_pitch_sensor"
+                }
+              ]
+              endPoint Solid {
+                translation 0.01 0 -0.18
+                name "left_thigh"
+                children [
+                  Shape {
+                    appearance DEF BRUSHED_STEEL PBRAppearance {
+                      baseColor 0.55 0.55 0.52
+                      metalness 0.35
+                      roughness 0.32
+                    }
+                    geometry Mesh {
+                      url [
+                        "../meshes/left_thigh.obj"
+                      ]
+                    }
+                  }
+                  Transform {
+                    translation 0 0 0.065
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Box {
+                          size 0.090 0.080 0.065
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.055
+                    children [
+                      Shape {
+                        appearance DEF silverMetal PBRAppearance {
+                          baseColor 0.72 0.72 0.70
+                          roughness 0.18
+                          metalness 0.75
+                        }
+                        geometry Box {
+                          size 0.075 0.060 0.230
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.180
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Cylinder {
+                          radius 0.060
+                          height 0.155
+                          subdivision 24
+                        }
+                      }
+                    ]
+                  }
+                  HingeJoint {
+                    jointParameters HingeJointParameters {
+                      anchor 0 0 -0.18
+                      axis 0 -1 0
+                      minStop 0.0
+                      maxStop 2.2
+                    }
+                    device [
+                      RotationalMotor {
+                        name "left_knee_pitch"
+                        minPosition 0
+                        maxPosition 2.2
+                        maxVelocity 5
+                        maxTorque 100
+                      }
+                      PositionSensor {
+                        name "left_knee_pitch_sensor"
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0 0 -0.32
+                      name "left_shin"
+                      children [
+                        Shape {
+                          appearance USE BRUSHED_STEEL
+                          geometry Mesh {
+                            url [
+                              "../meshes/left_shin.obj"
+                            ]
+                          }
+                        }
+                        Transform {
+                          translation 0 0 0.145
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Cylinder {
+                                radius 0.055
+                                height 0.145
+                                subdivision 24
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0.045 -0.030
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.024 0.018 0.240
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 -0.045 -0.030
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.024 0.018 0.240
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0.075
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.040 0.100 0.018
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 -0.145
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.040 0.100 0.018
+                              }
+                            }
+                          ]
+                        }
+                        HingeJoint {
+                          jointParameters HingeJointParameters {
+                            anchor 0 0 -0.16
+                            axis 0 1 0
+                            minStop -0.6
+                            maxStop 0.6
+                          }
+                          device [
+                            RotationalMotor {
+                              name "left_ankle_pitch"
+                              minPosition -0.6
+                              maxPosition 0.6
+                              maxVelocity 1
+                              maxTorque 20
+                            }
+                            PositionSensor {
+                              name "left_ankle_pitch_sensor"
+                            }
+                          ]
+                          endPoint Solid {
+                            translation 0 0 -0.16
+                            name "left_ankle_pitch_link"
+                            children [
+                              Transform {
+                                translation 0 0 0
+                                children [
+                                  Shape {
+                                    appearance USE darkJoint
+                                    geometry Cylinder {
+                                      radius 0.048
+                                      height 0.130
+                                      subdivision 32
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0 0
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.034 0.150 0.018
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0.065 -0.036
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.026 0.018 0.095
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 -0.065 -0.036
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.026 0.018 0.095
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0 -0.058
+                                children [
+                                  Shape {
+                                    appearance USE darkJoint
+                                    geometry Box {
+                                      size 0.052 0.092 0.024
+                                    }
+                                  }
+                                ]
+                              }
+                              HingeJoint {
+                                jointParameters HingeJointParameters {
+                                  anchor 0 0 0
+                                  axis 1 0 0
+                                  minStop -0.35
+                                  maxStop 0.35
+                                }
+                                device [
+                                    RotationalMotor {
+                                      name "left_ankle_roll"
+                                      minPosition -0.35
+                                      maxPosition 0.35
+                                      maxVelocity 1
+                                      maxTorque 20
+                                    }
+                                  PositionSensor {
+                                    name "left_ankle_roll_sensor"
+                                  }
+                                ]
+                                endPoint DEF LEFT_FOOT Solid {
+                                  translation 0 0 0
+                                  name "left_foot"
+                                  contactMaterial "foot"
+                                  children [
+                                    GPS {
+                                      name "left_foot_gps"
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.015
+                                      children [
+                                        Shape {
+                                          appearance USE silverMetal
+                                          geometry Cylinder {
+                                            radius 0.045
+                                            height 0.125
+                                            subdivision 24
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0.058 -0.045
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.035 0.014 0.075
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 -0.058 -0.045
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.035 0.014 0.075
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation -0.075 0 -0.070
+                                      children [
+                                        Shape {
+                                          appearance USE silverMetal
+                                          geometry Box {
+                                            size 0.22 0.10 0.045
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                  boundingObject Transform {
+                                    translation -0.075 0 -0.070
+                                    children [
+                                      Box {
+                                        size 0.22 0.10 0.04
+                                      }
+                                    ]
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.8
+                                  }
+                                }
+                              }
+                            ]
+                            boundingObject Sphere {
+                              radius 0.025
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.04
+                            }
+                          }
+                        }
+                      ]
+                      boundingObject Box {
+                        size 0.085 0.07 0.32
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.6
+                      }
+                    }
+                  }
+                ]
+                boundingObject Box {
+                  size 0.10 0.08 0.32
+                }
+                physics Physics {
+                  density -1
+                  mass 0.8
+                }
+              }
+            }
+          ]
+          boundingObject Box {
+            size 0.07 0.08 0.06
+          }
+          physics Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0 -0.145 -0.12
+          axis 1 0 0
+          minStop -0.7
+          maxStop 0.7
+        }
+        device [
+          RotationalMotor {
+            name "right_hip_roll"
+            minPosition -0.7
+            maxPosition 0.7
+            maxVelocity 5
+            maxTorque 100
+          }
+          PositionSensor {
+            name "right_hip_roll_sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0 -0.145 -0.12
+          name "right_hip_roll_link"
+          children [
+            Transform {
+              translation 0 0 0
+              rotation 0 0 1 1.5708
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Cylinder {
+                    radius 0.050
+                    height 0.12
+                    subdivision 24
+                  }
+                }
+              ]
+            }
+            Transform {
+              translation 0 0 0
+              children [
+                Shape {
+                  appearance USE darkJoint
+                  geometry Sphere {
+                    radius 0.055
+                    subdivision 2
+                  }
+                }
+              ]
+            }
+            HingeJoint {
+              jointParameters HingeJointParameters {
+                anchor 0 0 0
+                axis 0 1 0
+                minStop -1.2
+                maxStop 1.2
+              }
+              device [
+                RotationalMotor {
+                  name "right_hip_pitch"
+                  minPosition -1.2
+                  maxPosition 1.2
+                  maxVelocity 5
+                  maxTorque 100
+                }
+                PositionSensor {
+                  name "right_hip_pitch_sensor"
+                }
+              ]
+              endPoint Solid {
+                translation 0.01 0 -0.18
+                name "right_thigh"
+                children [
+                  Shape {
+                    appearance USE BRUSHED_STEEL
+                    geometry Mesh {
+                      url [
+                        "../meshes/right_thigh.obj"
+                      ]
+                    }
+                  }
+                  Transform {
+                    translation 0 0 0.065
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Box {
+                          size 0.090 0.080 0.065
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.055
+                    children [
+                      Shape {
+                        appearance USE silverMetal
+                        geometry Box {
+                          size 0.075 0.060 0.230
+                        }
+                      }
+                    ]
+                  }
+                  Transform {
+                    translation 0 0 -0.180
+                    children [
+                      Shape {
+                        appearance USE darkJoint
+                        geometry Cylinder {
+                          radius 0.060
+                          height 0.155
+                          subdivision 24
+                        }
+                      }
+                    ]
+                  }
+                  HingeJoint {
+                    jointParameters HingeJointParameters {
+                      anchor 0 0 -0.18
+                      axis 0 -1 0
+                      minStop 0.0
+                      maxStop 2.2
+                    }
+                    device [
+                      RotationalMotor {
+                        name "right_knee_pitch"
+                        minPosition 0
+                        maxPosition 2.2
+                        maxVelocity 5
+                        maxTorque 100
+                      }
+                      PositionSensor {
+                        name "right_knee_pitch_sensor"
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0 0 -0.32
+                      name "right_shin"
+                      children [
+                        Shape {
+                          appearance USE BRUSHED_STEEL
+                          geometry Mesh {
+                            url [
+                              "../meshes/right_shin.obj"
+                            ]
+                          }
+                        }
+                        Transform {
+                          translation 0 0 0.145
+                          children [
+                            Shape {
+                              appearance USE darkJoint
+                              geometry Cylinder {
+                                radius 0.055
+                                height 0.145
+                                subdivision 24
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0.045 -0.030
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.024 0.018 0.240
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 -0.045 -0.030
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.024 0.018 0.240
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 0.075
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.040 0.100 0.018
+                              }
+                            }
+                          ]
+                        }
+                        Transform {
+                          translation 0 0 -0.145
+                          children [
+                            Shape {
+                              appearance USE silverMetal
+                              geometry Box {
+                                size 0.040 0.100 0.018
+                              }
+                            }
+                          ]
+                        }
+                        HingeJoint {
+                          jointParameters HingeJointParameters {
+                            anchor 0 0 -0.16
+                            axis 0 1 0
+                            minStop -0.6
+                            maxStop 0.6
+                          }
+                          device [
+                            RotationalMotor {
+                              name "right_ankle_pitch"
+                              minPosition -0.6
+                              maxPosition 0.6
+                              maxVelocity 1
+                              maxTorque 20
+                            }
+                            PositionSensor {
+                              name "right_ankle_pitch_sensor"
+                            }
+                          ]
+                          endPoint Solid {
+                            translation 0 0 -0.16
+                            name "right_ankle_pitch_link"
+                            children [
+                              Transform {
+                                translation 0 0 0
+                                children [
+                                  Shape {
+                                    appearance USE darkJoint
+                                    geometry Cylinder {
+                                      radius 0.048
+                                      height 0.130
+                                      subdivision 32
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0 0
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.034 0.150 0.018
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0.065 -0.036
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.026 0.018 0.095
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 -0.065 -0.036
+                                children [
+                                  Shape {
+                                    appearance USE silverMetal
+                                    geometry Box {
+                                      size 0.026 0.018 0.095
+                                    }
+                                  }
+                                ]
+                              }
+                              Transform {
+                                translation 0 0 -0.058
+                                children [
+                                  Shape {
+                                    appearance USE darkJoint
+                                    geometry Box {
+                                      size 0.052 0.092 0.024
+                                    }
+                                  }
+                                ]
+                              }
+                              HingeJoint {
+                                jointParameters HingeJointParameters {
+                                  anchor 0 0 0
+                                  axis 1 0 0
+                                  minStop -0.35
+                                  maxStop 0.35
+                                }
+                                device [
+                                    RotationalMotor {
+                                      name "right_ankle_roll"
+                                      minPosition -0.35
+                                      maxPosition 0.35
+                                      maxVelocity 1
+                                      maxTorque 20
+                                    }
+                                  PositionSensor {
+                                    name "right_ankle_roll_sensor"
+                                  }
+                                ]
+                                endPoint DEF RIGHT_FOOT Solid {
+                                  translation 0 0 0
+                                  name "right_foot"
+                                  contactMaterial "foot"
+                                  children [
+                                    GPS {
+                                      name "right_foot_gps"
+                                    }
+                                    Transform {
+                                      translation 0 0 -0.015
+                                      children [
+                                        Shape {
+                                          appearance USE silverMetal
+                                          geometry Cylinder {
+                                            radius 0.045
+                                            height 0.125
+                                            subdivision 24
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 0.058 -0.045
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.035 0.014 0.075
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation 0 -0.058 -0.045
+                                      children [
+                                        Shape {
+                                          appearance USE darkJoint
+                                          geometry Box {
+                                            size 0.035 0.014 0.075
+                                          }
+                                        }
+                                      ]
+                                    }
+                                    Transform {
+                                      translation -0.075 0 -0.070
+                                      children [
+                                        Shape {
+                                          appearance USE silverMetal
+                                          geometry Box {
+                                            size 0.22 0.10 0.045
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                  boundingObject Transform {
+                                    translation -0.075 0 -0.070
+                                    children [
+                                      Box {
+                                        size 0.22 0.10 0.04
+                                      }
+                                    ]
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.8
+                                  }
+                                }
+                              }
+                            ]
+                            boundingObject Sphere {
+                              radius 0.025
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.04
+                            }
+                          }
+                        }
+                      ]
+                      boundingObject Box {
+                        size 0.085 0.07 0.32
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.6
+                      }
+                    }
+                  }
+                ]
+                boundingObject Box {
+                  size 0.10 0.08 0.32
+                }
+                physics Physics {
+                  density -1
+                  mass 0.8
+                }
+              }
+            }
+          ]
+          boundingObject Box {
+            size 0.07 0.08 0.06
+          }
+          physics Physics {
+            density -1
+            mass 0.05
+          }
+        }
+      }
+    ]
+    boundingObject Box {
+      size 0.22 0.24 0.16
+    }
+    physics Physics {
+      density -1
+      mass 2.0
+    }
+  }
+}

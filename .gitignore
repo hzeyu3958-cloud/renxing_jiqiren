@@ -1,0 +1,23 @@
+# Build files
+*.exe
+*.o
+*.obj
+build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Backup files
+*.rescuebak*
+
+# IDE files
+.vscode/
+.idea/
+
+# Webots project files
+.*.wbproj
+
+# Compressed files (optional - keeping the unzipped version)
+# webots_bone.zip

@@ -1,0 +1,423 @@
+#VRML_SIM R2022b utf8
+
+EXTERNPROTO "../protos/MechaHumanoid21.proto"
+
+WorldInfo {
+  title "Mecha Humanoid 21 DOF"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "foot"
+      material2 "walk_surface"
+      coulombFriction [
+        1.2
+      ]
+      bounce 0
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.912861324889 0.258963178978 0.315629962862 1.4642849504
+  position 1.45 -2.35 1.3
+  fieldOfView 0.95
+  follow "MechaHumanoid21"
+}
+Background {
+  skyColor [
+    0.62 0.74 0.9
+  ]
+  luminosity 1.2
+}
+DirectionalLight {
+  ambientIntensity 0.8
+  direction -0.45 -0.65 -1
+  intensity 1.4
+}
+PointLight {
+  attenuation 0 0 1
+  intensity 0.8
+  location 1.2 -1.8 2
+}
+Solid {
+  translation 0 0 -0.01
+  name "ground"
+  contactMaterial "walk_surface"
+  boundingObject Box {
+    size 20 20 0.02
+  }
+  locked TRUE
+}
+Solid {
+  translation 0 0 -10
+  name "removed_walking_reference_board"
+  contactMaterial "walk_surface"
+  children [
+    Shape {
+      appearance DEF WOOD_PLANK PBRAppearance {
+        baseColor 0.46 0.25 0.10
+        roughness 0.72
+        metalness 0
+      }
+      geometry Box {
+        size 3.0 0.4 0.04
+      }
+    }
+    Transform {
+      translation -1.5 0 0.023
+      children [
+        Shape {
+          appearance DEF BOARD_MARK PBRAppearance {
+            baseColor 0.08 0.04 0.018
+            roughness 0.8
+            metalness 0
+          }
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -1.4 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -1.3 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -1.2 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -1.1 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -1.0 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.9 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.8 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.7 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.6 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.5 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.4 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.3 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.2 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.1 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.1 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.2 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.3 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.4 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.5 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.6 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.7 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.8 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.9 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.0 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.1 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.2 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.3 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.4 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.006 0.38 0.004
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 1.5 0 0.023
+      children [
+        Shape {
+          appearance USE BOARD_MARK
+          geometry Box {
+            size 0.008 0.42 0.004
+          }
+        }
+      ]
+    }
+  ]
+  boundingObject Box {
+    size 0.001 0.001 0.001
+  }
+  locked TRUE
+}
+MechaHumanoid21 {
+  translation 0 0 0.93
+  rotation 0 0 1 0
+  name "MechaHumanoid21"
+  controller "walk_controller"
+  locked FALSE
+  supervisor TRUE
+}
