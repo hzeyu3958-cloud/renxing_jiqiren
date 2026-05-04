@@ -1020,8 +1020,8 @@ PROTO MechaHumanoid21 [
                               name "left_ankle_pitch"
                               minPosition -0.6
                               maxPosition 0.6
-                              maxVelocity 1
-                              maxTorque 20
+                              maxVelocity 4
+                              maxTorque 60
                             }
                             PositionSensor {
                               name "left_ankle_pitch_sensor"
@@ -1100,8 +1100,8 @@ PROTO MechaHumanoid21 [
                                       name "left_ankle_roll"
                                       minPosition -0.35
                                       maxPosition 0.35
-                                      maxVelocity 1
-                                      maxTorque 20
+                                      maxVelocity 4
+                                      maxTorque 55
                                     }
                                   PositionSensor {
                                     name "left_ankle_roll_sensor"
@@ -1431,8 +1431,8 @@ PROTO MechaHumanoid21 [
                               name "right_ankle_pitch"
                               minPosition -0.6
                               maxPosition 0.6
-                              maxVelocity 1
-                              maxTorque 20
+                              maxVelocity 4
+                              maxTorque 60
                             }
                             PositionSensor {
                               name "right_ankle_pitch_sensor"
@@ -1511,8 +1511,8 @@ PROTO MechaHumanoid21 [
                                       name "right_ankle_roll"
                                       minPosition -0.35
                                       maxPosition 0.35
-                                      maxVelocity 1
-                                      maxTorque 20
+                                      maxVelocity 4
+                                      maxTorque 55
                                     }
                                   PositionSensor {
                                     name "right_ankle_roll_sensor"

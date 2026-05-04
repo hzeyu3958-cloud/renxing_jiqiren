@@ -1,5 +1,3 @@
-#include <webots/GPS.hpp>
-#include <webots/InertialUnit.hpp>
 #include <webots/Motor.hpp>
 #include <webots/Node.hpp>
 #include <webots/PositionSensor.hpp>
@@ -34,40 +32,90 @@ const double R_ANKLE_ROLL_SIGN = 1.0;
 const double L_SHOULDER_PITCH_SIGN = 1.0;
 const double R_SHOULDER_PITCH_SIGN = 1.0;
 
+const double ROBOT_LOCAL_FORWARD_X = -1.0;
 const double HIP_FORWARD_DIR = 1.0;
 const double ROLL_TO_LEFT_DIR = 1.0;
 
-const double SHIFT_TIME = 0.23;
+// The mesh/feet point toward local -X. Webots reports positions in the world
+// frame, so debug projects motion onto that local forward axis instead of dx.
+const double MOTOR_VELOCITY = 4.2;
+const double MOTOR_TORQUE = 96.0;
+const double ANKLE_MOTOR_VELOCITY = 3.6;
+const double ANKLE_MOTOR_TORQUE = 45.0;
+
+const double GAIT_CYCLE_TIME = 1.58;
+const double STANCE_FRACTION = 0.68;
+const double SWING_FRACTION = 1.0 - STANCE_FRACTION;
+const double START_BLEND_TIME = 1.40;
+const double COMMAND_FILTER_TIME = 0.075;
+const double SHIFT_TIME = 0.20;
 const double SWING_TIME = 0.31;
 const double DOWN_TIME = 0.15;
 const bool RESCUE_STAND_ONLY = false;
 const bool DEBUG_WALK = false;
 
-const double ARM_SWING = 0.48;
+const double ARM_SWING = 0.58;
 const double ARM_SWING_LAND = 0.34;
-const double ARM_ROLL_SWING = 0.18;
-const double ARM_ROLL_LAND = 0.15;
-const double ARM_ELBOW_BASE = 0.52;
-const double ARM_ELBOW_BACK_GAIN = 0.04;
-const double TORSO_YAW = 0.015;
-const double TORSO_PITCH_SHIFT = 0.012;
-const double TORSO_PITCH_WALK = 0.026;
+const double ARM_SWING_SHIFT = 0.18;
+const double ARM_ROLL_SWING = 0.24;
+const double ARM_ROLL_LAND = 0.18;
+const double ARM_ROLL_SHIFT = 0.14;
+const double ARM_ELBOW_BASE = 0.62;
+const double ARM_ELBOW_BACK_GAIN = 0.08;
+const double TORSO_YAW = 0.036;
+const double TORSO_FORWARD_LEAN = 0.060;
+const double TORSO_PITCH_SHIFT = 0.020;
+const double TORSO_PITCH_WALK = 0.042;
 
-const double HIP_ROLL_SHIFT = 0.08;
-const double ANKLE_ROLL_SUPPORT = 0.07;
-const double ANKLE_ROLL_PREP = 0.025;
-const double SUPPORT_HIP_BACK = -0.22;
-const double SWING_HIP_FORWARD = 0.40;
+const double HIP_ROLL_SHIFT = 0.055;
+const double ANKLE_ROLL_SUPPORT = 0.075;
+const double ANKLE_ROLL_PREP = 0.030;
+const double SWING_HIP_ROLL_CENTER = 0.045;
+const double SHIFT_SUPPORT_HIP_FORWARD = 0.08;
+const double SHIFT_TRAILING_HIP_BACK = -0.14;
+const double SUPPORT_HIP_BACK = -0.18;
+const double SWING_HIP_FORWARD = 0.66;
 const double LAND_HIP_BACK = -0.16;
-const double LAND_HIP_FORWARD = 0.26;
-const double SUPPORT_KNEE = 0.14;
-const double SWING_PREP_KNEE = 0.18;
-const double SWING_KNEE = 0.58;
-const double LAND_KNEE = 0.20;
-const double SUPPORT_ANKLE_PUSH = 0.08;
-const double LAND_SUPPORT_ANKLE = 0.06;
-const double SWING_ANKLE_LIFT = -0.22;
-const double LAND_ANKLE = -0.08;
+const double LAND_HIP_FORWARD = 0.52;
+const double SUPPORT_KNEE = 0.16;
+const double SWING_PREP_KNEE = 0.24;
+const double SWING_KNEE = 0.86;
+const double LAND_KNEE = 0.10;
+const double SUPPORT_ANKLE_PUSH = 0.03;
+const double LAND_SUPPORT_ANKLE = 0.03;
+const double SWING_ANKLE_LIFT = -0.14;
+const double LAND_ANKLE = -0.02;
+
+const double HIP_SWING_BACK = -0.18;
+const double HIP_SWING_FORWARD = 0.66;
+const double KNEE_LANDING_ABSORB = 0.05;
+const double KNEE_STANCE_FLEX = 0.05;
+const double ANKLE_TOE_UP = -0.15;
+const double ANKLE_FLAT = -0.03;
+const double ANKLE_PUSH_OFF = 0.10;
+
+const double HEEL_STRIKE_HIP = 0.54;
+const double MID_STANCE_HIP = 0.02;
+const double TOE_OFF_HIP = -0.18;
+const double EARLY_SWING_HIP = 0.32;
+const double LATE_SWING_HIP = 0.76;
+const double LOADING_KNEE = 0.26;
+const double MID_STANCE_KNEE = 0.12;
+const double TOE_OFF_KNEE = 0.28;
+const double PEAK_SWING_KNEE = 1.02;
+const double SWING_RECOVERY_KNEE = 0.44;
+const double HEEL_STRIKE_ANKLE = -0.08;
+const double FOOT_FLAT_ANKLE = -0.02;
+const double TOE_OFF_ANKLE = 0.02;
+const double SWING_CLEARANCE_ANKLE = -0.24;
+
+const double DEFAULT_TURN_COMMAND = 0.0;
+const double TURN_COMMAND_MAX = 0.75;
+const double TURN_WAIST_YAW = 0.10;
+const double TURN_NECK_YAW = -0.04;
+const double TURN_STRIDE_ASYMMETRY = 0.06;
+const double TURN_LEAN_ROLL = 0.018;
+const double TURN_ANKLE_ROLL = 0.025;
 
 struct MotorHandle {
   Motor *motor;
@@ -78,9 +126,7 @@ typedef std::map<std::string, double> PoseMap;
 
 std::map<std::string, MotorHandle> motors;
 PoseMap lastAppliedPose;
-GPS *leftFootGps = nullptr;
-GPS *rightFootGps = nullptr;
-InertialUnit *bodyImu = nullptr;
+double turnCommand = DEFAULT_TURN_COMMAND;
 
 double clamp(double x, double lo, double hi) {
   if (x < lo)
@@ -99,6 +145,36 @@ double lerp(double a, double b, double u) {
   return a + (b - a) * u;
 }
 
+double cosineEase(double x) {
+  x = clamp(x, 0.0, 1.0);
+  return 0.5 - 0.5 * std::cos(M_PI * x);
+}
+
+double wrap01(double x) {
+  x = std::fmod(x, 1.0);
+  if (x < 0.0)
+    x += 1.0;
+  return x;
+}
+
+double rampUp(double x) {
+  return smoothStep(clamp(x, 0.0, 1.0));
+}
+
+double rampDown(double x) {
+  return 1.0 - rampUp(x);
+}
+
+double segmentStep(double x, double start, double end) {
+  return smoothStep((x - start) / (end - start));
+}
+
+double capPositive(double desired, double limit) {
+  if (limit <= 0.0)
+    return desired;
+  return desired < limit ? desired : limit;
+}
+
 void setMotor(const std::string &name, double value, double lo, double hi) {
   std::map<std::string, MotorHandle>::iterator it = motors.find(name);
   if (it == motors.end() || it->second.motor == nullptr)
@@ -114,8 +190,11 @@ void registerMotor(Robot *robot, int timestep, const std::string &name) {
 
   if (handle.motor) {
     std::cout << "found motor: " << name << std::endl;
-    handle.motor->setVelocity(3.1);
-    handle.motor->setAvailableTorque(60.0);
+    const bool ankleMotor = name.find("ankle") != std::string::npos;
+    const double desiredVelocity = ankleMotor ? ANKLE_MOTOR_VELOCITY : MOTOR_VELOCITY;
+    const double desiredTorque = ankleMotor ? ANKLE_MOTOR_TORQUE : MOTOR_TORQUE;
+    handle.motor->setVelocity(capPositive(desiredVelocity, handle.motor->getMaxVelocity()));
+    handle.motor->setAvailableTorque(capPositive(desiredTorque, handle.motor->getMaxTorque()));
 
     const std::string sensorName = name + "_sensor";
     handle.sensor = robot->getPositionSensor(sensorName);
@@ -149,6 +228,21 @@ PoseMap mixPose(const PoseMap &a, const PoseMap &b, double u) {
   return out;
 }
 
+PoseMap filterPose(const PoseMap &previous, const PoseMap &target, double alpha) {
+  alpha = clamp(alpha, 0.0, 1.0);
+  if (previous.empty())
+    return target;
+
+  PoseMap out = target;
+
+  for (std::map<std::string, double>::const_iterator it = target.begin(); it != target.end(); ++it) {
+    const double av = poseValue(previous, it->first);
+    out[it->first] = lerp(av, it->second, alpha);
+  }
+
+  return out;
+}
+
 void setArmSwing(PoseMap &p, double leftArmPitch, double shoulderRoll, double elbowGain) {
   double effort = clamp(std::fabs(leftArmPitch) / ARM_SWING, 0.0, 1.0);
   double forwardElbow = ARM_ELBOW_BASE + elbowGain * effort;
@@ -166,6 +260,26 @@ void setArmSwing(PoseMap &p, double leftArmPitch, double shoulderRoll, double el
 void setTorso(PoseMap &p, double yaw, double pitch) {
   p["waist_yaw"] = yaw;
   p["waist_pitch"] = pitch;
+}
+
+void applyTurnToPose(PoseMap &p) {
+  double turn = clamp(turnCommand, -TURN_COMMAND_MAX, TURN_COMMAND_MAX);
+  if (std::fabs(turn) < 0.001)
+    return;
+
+  p["waist_yaw"] += TURN_WAIST_YAW * turn;
+  p["neck_yaw"] += TURN_NECK_YAW * turn;
+
+  double lean = TURN_LEAN_ROLL * turn * ROLL_TO_LEFT_DIR;
+  p["left_hip_roll"] += lean;
+  p["right_hip_roll"] += lean;
+  p["left_ankle_roll"] -= TURN_ANKLE_ROLL * turn * ROLL_TO_LEFT_DIR;
+  p["right_ankle_roll"] -= TURN_ANKLE_ROLL * turn * ROLL_TO_LEFT_DIR;
+
+  // Positive turnCommand means curve left: the right/outside leg takes the
+  // longer step while the left/inside leg shortens slightly.
+  p["left_hip_pitch"] -= TURN_STRIDE_ASYMMETRY * turn * HIP_FORWARD_DIR;
+  p["right_hip_pitch"] += TURN_STRIDE_ASYMMETRY * turn * HIP_FORWARD_DIR;
 }
 
 PoseMap directStandPose() {
@@ -213,13 +327,14 @@ PoseMap shiftLeftPose() {
   p["left_ankle_roll"] = -ANKLE_ROLL_SUPPORT * ROLL_TO_LEFT_DIR;
   p["right_ankle_roll"] = -ANKLE_ROLL_PREP * ROLL_TO_LEFT_DIR;
 
-  p["left_hip_pitch"] = -0.10 * HIP_FORWARD_DIR;
-  p["right_hip_pitch"] = -0.04 * HIP_FORWARD_DIR;
+  p["left_hip_pitch"] = SHIFT_SUPPORT_HIP_FORWARD * HIP_FORWARD_DIR;
+  p["right_hip_pitch"] = SHIFT_TRAILING_HIP_BACK * HIP_FORWARD_DIR;
   p["left_knee_pitch"] = SUPPORT_KNEE;
   p["right_knee_pitch"] = SWING_PREP_KNEE;
   p["left_ankle_pitch"] = LAND_SUPPORT_ANKLE * HIP_FORWARD_DIR;
   p["right_ankle_pitch"] = LAND_ANKLE * HIP_FORWARD_DIR;
 
+  setArmSwing(p, ARM_SWING_SHIFT, ARM_ROLL_SHIFT, 0.06);
   setTorso(p, -0.5 * TORSO_YAW, TORSO_PITCH_SHIFT);
 
   return p;
@@ -273,13 +388,14 @@ PoseMap shiftRightPose() {
   p["left_ankle_roll"] = ANKLE_ROLL_PREP * ROLL_TO_LEFT_DIR;
   p["right_ankle_roll"] = ANKLE_ROLL_SUPPORT * ROLL_TO_LEFT_DIR;
 
-  p["left_hip_pitch"] = -0.04 * HIP_FORWARD_DIR;
-  p["right_hip_pitch"] = -0.10 * HIP_FORWARD_DIR;
+  p["left_hip_pitch"] = SHIFT_TRAILING_HIP_BACK * HIP_FORWARD_DIR;
+  p["right_hip_pitch"] = SHIFT_SUPPORT_HIP_FORWARD * HIP_FORWARD_DIR;
   p["left_knee_pitch"] = SWING_PREP_KNEE;
   p["right_knee_pitch"] = SUPPORT_KNEE;
   p["left_ankle_pitch"] = LAND_ANKLE * HIP_FORWARD_DIR;
   p["right_ankle_pitch"] = LAND_SUPPORT_ANKLE * HIP_FORWARD_DIR;
 
+  setArmSwing(p, -ARM_SWING_SHIFT, ARM_ROLL_SHIFT, 0.06);
   setTorso(p, 0.5 * TORSO_YAW, TORSO_PITCH_SHIFT);
 
   return p;
@@ -323,6 +439,86 @@ PoseMap leftFootDownPose() {
   return p;
 }
 
+struct LegAngles {
+  double hip;
+  double knee;
+  double ankle;
+  double swingWeight;
+  double supportWeight;
+};
+
+// One gait cycle starts at heel strike. A longer stance phase leaves a short
+// double-support window and avoids the old toe-tapping swing-first motion.
+LegAngles legAnglesForPhase(double phase) {
+  LegAngles out;
+  out.hip = HEEL_STRIKE_HIP;
+  out.knee = SUPPORT_KNEE;
+  out.ankle = HEEL_STRIKE_ANKLE;
+  out.swingWeight = 0.0;
+  out.supportWeight = 0.0;
+
+  if (phase < STANCE_FRACTION) {
+    const double stancePhase = phase / STANCE_FRACTION;
+    const double stanceEase = cosineEase(stancePhase);
+    const double loadPulse = std::sin(M_PI * stancePhase);
+    const double pushPulse = cosineEase(stancePhase);
+
+    out.supportWeight = rampUp(stancePhase / 0.12) * rampDown((stancePhase - 0.88) / 0.12);
+    out.hip = lerp(HEEL_STRIKE_HIP, TOE_OFF_HIP, stanceEase);
+    out.knee = lerp(SUPPORT_KNEE, TOE_OFF_KNEE, pushPulse) + 0.10 * loadPulse;
+    out.ankle = lerp(HEEL_STRIKE_ANKLE, TOE_OFF_ANKLE, stanceEase);
+  } else {
+    const double swingPhase = (phase - STANCE_FRACTION) / SWING_FRACTION;
+    const double swingEase = cosineEase(swingPhase);
+    const double liftPulse = std::sin(M_PI * swingPhase);
+    const double kneeBase = lerp(TOE_OFF_KNEE, SUPPORT_KNEE, swingEase);
+    const double ankleBase = lerp(TOE_OFF_ANKLE, HEEL_STRIKE_ANKLE, swingEase);
+
+    out.swingWeight = liftPulse;
+    out.hip = lerp(TOE_OFF_HIP, HEEL_STRIKE_HIP, swingEase) +
+              (LATE_SWING_HIP - 0.5 * (TOE_OFF_HIP + HEEL_STRIKE_HIP)) * liftPulse;
+    out.knee = kneeBase + (PEAK_SWING_KNEE - 0.5 * (TOE_OFF_KNEE + SUPPORT_KNEE)) * liftPulse;
+    out.ankle = ankleBase + (SWING_CLEARANCE_ANKLE - 0.5 * (TOE_OFF_ANKLE + HEEL_STRIKE_ANKLE)) * liftPulse;
+  }
+
+  return out;
+}
+
+PoseMap naturalWalkPose(double walkTime) {
+  PoseMap p = directStandPose();
+
+  const double leftPhase = wrap01(walkTime / GAIT_CYCLE_TIME);
+  const double rightPhase = wrap01(leftPhase + 0.5);
+  const LegAngles left = legAnglesForPhase(leftPhase);
+  const LegAngles right = legAnglesForPhase(rightPhase);
+
+  p["left_hip_pitch"] = left.hip * HIP_FORWARD_DIR;
+  p["right_hip_pitch"] = right.hip * HIP_FORWARD_DIR;
+  p["left_knee_pitch"] = left.knee;
+  p["right_knee_pitch"] = right.knee;
+  p["left_ankle_pitch"] = left.ankle * HIP_FORWARD_DIR;
+  p["right_ankle_pitch"] = right.ankle * HIP_FORWARD_DIR;
+
+  const double leftSupport = left.supportWeight;
+  const double rightSupport = right.supportWeight;
+  const double lateral = HIP_ROLL_SHIFT * (leftSupport - rightSupport) * ROLL_TO_LEFT_DIR;
+  p["left_hip_roll"] = lateral - SWING_HIP_ROLL_CENTER * left.swingWeight * ROLL_TO_LEFT_DIR;
+  p["right_hip_roll"] = lateral + SWING_HIP_ROLL_CENTER * right.swingWeight * ROLL_TO_LEFT_DIR;
+  p["left_ankle_roll"] = (-ANKLE_ROLL_SUPPORT * leftSupport + ANKLE_ROLL_PREP * rightSupport) * ROLL_TO_LEFT_DIR;
+  p["right_ankle_roll"] = (ANKLE_ROLL_SUPPORT * rightSupport - ANKLE_ROLL_PREP * leftSupport) * ROLL_TO_LEFT_DIR;
+
+  const double stepSignal = clamp((left.hip - right.hip) / (HEEL_STRIKE_HIP - TOE_OFF_HIP), -1.0, 1.0);
+  const double swingEnergy = clamp(left.swingWeight + right.swingWeight, 0.0, 1.0);
+  setArmSwing(p, -ARM_SWING * stepSignal, ARM_ROLL_LAND + 0.06 * swingEnergy, 0.16);
+  p["left_shoulder_yaw"] = 0.12 * stepSignal;
+  p["right_shoulder_yaw"] = 0.12 * stepSignal;
+  p["waist_yaw"] = TORSO_YAW * stepSignal;
+  p["neck_yaw"] = -0.35 * TORSO_YAW * stepSignal;
+  p["waist_pitch"] = TORSO_FORWARD_LEAN + 0.025 * swingEnergy;
+
+  return p;
+}
+
 void applyDirectPose(const PoseMap &p) {
   setMotor("neck_yaw", poseValue(p, "neck_yaw"), -1.2, 1.2);
 
@@ -350,69 +546,46 @@ void applyDirectPose(const PoseMap &p) {
   setMotor("left_knee_pitch", L_KNEE_SIGN * poseValue(p, "left_knee_pitch"), 0.0, 2.2);
   setMotor("right_knee_pitch", R_KNEE_SIGN * poseValue(p, "right_knee_pitch"), 0.0, 2.2);
 
-  setMotor("left_ankle_pitch", L_ANKLE_PITCH_SIGN * poseValue(p, "left_ankle_pitch"), -0.35, 0.35);
-  setMotor("right_ankle_pitch", R_ANKLE_PITCH_SIGN * poseValue(p, "right_ankle_pitch"), -0.35, 0.35);
+  setMotor("left_ankle_pitch", L_ANKLE_PITCH_SIGN * poseValue(p, "left_ankle_pitch"), -0.6, 0.6);
+  setMotor("right_ankle_pitch", R_ANKLE_PITCH_SIGN * poseValue(p, "right_ankle_pitch"), -0.6, 0.6);
 
-  setMotor("left_ankle_roll", L_ANKLE_ROLL_SIGN * poseValue(p, "left_ankle_roll"), -0.20, 0.20);
-  setMotor("right_ankle_roll", R_ANKLE_ROLL_SIGN * poseValue(p, "right_ankle_roll"), -0.20, 0.20);
+  setMotor("left_ankle_roll", L_ANKLE_ROLL_SIGN * poseValue(p, "left_ankle_roll"), -0.35, 0.35);
+  setMotor("right_ankle_roll", R_ANKLE_ROLL_SIGN * poseValue(p, "right_ankle_roll"), -0.35, 0.35);
 }
-
+ 
 void applyWalkPose(Robot *robot) {
   double t = robot->getTime();
+  static double previousApplyTime = -1.0;
 
   if (RESCUE_STAND_ONLY || t < 2.0) {
     PoseMap standPose = directStandPose();
     lastAppliedPose = standPose;
     applyDirectPose(standPose);
+    previousApplyTime = t;
     return;
   }
 
-  double startBlend = smoothStep(clamp((t - 2.0) / 1.0, 0.0, 1.0));
-
-  const double cycleTime = 2.0 * (SHIFT_TIME + SWING_TIME + DOWN_TIME);
-
-  double wt = std::fmod(t - 2.0, cycleTime);
-  if (wt < 0.0)
-    wt += cycleTime;
+  double startBlend = smoothStep(clamp((t - 2.0) / START_BLEND_TIME, 0.0, 1.0));
 
   PoseMap stand = directStandPose();
-  PoseMap target = stand;
+  PoseMap target = naturalWalkPose(t - 2.0);
+  applyTurnToPose(target);
 
-  double s0 = SHIFT_TIME;
-  double s1 = s0 + SWING_TIME;
-  double s2 = s1 + DOWN_TIME;
-  double s3 = s2 + SHIFT_TIME;
-  double s4 = s3 + SWING_TIME;
-  double s5 = s4 + DOWN_TIME;
-
-  if (wt < s0) {
-    double u = wt / SHIFT_TIME;
-    target = mixPose(leftFootDownPose(), shiftLeftPose(), u);
-  } else if (wt < s1) {
-    double u = (wt - s0) / SWING_TIME;
-    target = mixPose(shiftLeftPose(), swingRightPose(), u);
-  } else if (wt < s2) {
-    double u = (wt - s1) / DOWN_TIME;
-    target = mixPose(swingRightPose(), rightFootDownPose(), u);
-  } else if (wt < s3) {
-    double u = (wt - s2) / SHIFT_TIME;
-    target = mixPose(rightFootDownPose(), shiftRightPose(), u);
-  } else if (wt < s4) {
-    double u = (wt - s3) / SWING_TIME;
-    target = mixPose(shiftRightPose(), swingLeftPose(), u);
-  } else if (wt < s5) {
-    double u = (wt - s4) / DOWN_TIME;
-    target = mixPose(swingLeftPose(), leftFootDownPose(), u);
-  }
-
-  PoseMap finalPose = mixPose(stand, target, startBlend);
+  PoseMap desiredPose = mixPose(stand, target, startBlend);
+  const double dt = previousApplyTime >= 0.0 ? t - previousApplyTime : 0.0;
+  const double filterAlpha = dt > 0.0 ? 1.0 - std::exp(-dt / COMMAND_FILTER_TIME) : 1.0;
+  PoseMap finalPose = filterPose(lastAppliedPose, desiredPose, filterAlpha);
+  previousApplyTime = t;
   lastAppliedPose = finalPose;
   applyDirectPose(finalPose);
 }
 
 void debugWalkState(Supervisor *robot) {
   static double lastPrintTime = -1.0;
+  static bool haveStartRoot = false;
   static bool havePreviousRoot = false;
+  static bool warnedNoForward = false;
+  static double startRoot[3] = {0.0, 0.0, 0.0};
   static double previousRoot[3] = {0.0, 0.0, 0.0};
   double t = robot->getTime();
 
@@ -423,28 +596,38 @@ void debugWalkState(Supervisor *robot) {
   Node *self = robot->getSelf();
 
   const double *rootPos = self ? self->getPosition() : nullptr;
-  const double *leftFootPos = leftFootGps ? leftFootGps->getValues() : nullptr;
-  const double *rightFootPos = rightFootGps ? rightFootGps->getValues() : nullptr;
-
-  Node *leftFoot = nullptr;
-  Node *rightFoot = nullptr;
-  if (!leftFootPos) {
-    leftFoot = robot->getFromDef("LEFT_FOOT");
-    leftFootPos = leftFoot ? leftFoot->getPosition() : nullptr;
-  }
-  if (!rightFootPos) {
-    rightFoot = robot->getFromDef("RIGHT_FOOT");
-    rightFootPos = rightFoot ? rightFoot->getPosition() : nullptr;
-  }
-  const double *rpy = bodyImu ? bodyImu->getRollPitchYaw() : nullptr;
-
+  const double *rootOrientation = self ? self->getOrientation() : nullptr;
   double dx = 0.0;
   double dy = 0.0;
   double dz = 0.0;
+  double stepDx = 0.0;
+  double stepDy = 0.0;
+  double stepDz = 0.0;
+  double forwardDelta = 0.0;
+  double stepForwardDelta = 0.0;
+  double forwardAxis[3] = {ROBOT_LOCAL_FORWARD_X, 0.0, 0.0};
+  if (rootOrientation) {
+    forwardAxis[0] = ROBOT_LOCAL_FORWARD_X * rootOrientation[0];
+    forwardAxis[1] = ROBOT_LOCAL_FORWARD_X * rootOrientation[3];
+    forwardAxis[2] = ROBOT_LOCAL_FORWARD_X * rootOrientation[6];
+  }
+  if (rootPos && !haveStartRoot) {
+    startRoot[0] = rootPos[0];
+    startRoot[1] = rootPos[1];
+    startRoot[2] = rootPos[2];
+    haveStartRoot = true;
+  }
+  if (rootPos && haveStartRoot) {
+    dx = rootPos[0] - startRoot[0];
+    dy = rootPos[1] - startRoot[1];
+    dz = rootPos[2] - startRoot[2];
+    forwardDelta = dx * forwardAxis[0] + dy * forwardAxis[1] + dz * forwardAxis[2];
+  }
   if (rootPos && havePreviousRoot) {
-    dx = rootPos[0] - previousRoot[0];
-    dy = rootPos[1] - previousRoot[1];
-    dz = rootPos[2] - previousRoot[2];
+    stepDx = rootPos[0] - previousRoot[0];
+    stepDy = rootPos[1] - previousRoot[1];
+    stepDz = rootPos[2] - previousRoot[2];
+    stepForwardDelta = stepDx * forwardAxis[0] + stepDy * forwardAxis[1] + stepDz * forwardAxis[2];
   }
   if (rootPos) {
     previousRoot[0] = rootPos[0];
@@ -456,35 +639,19 @@ void debugWalkState(Supervisor *robot) {
   std::string supportFoot = "standing";
   std::string swingFoot = "none";
   if (t >= 2.0) {
-    const double cycleTime = 2.0 * (SHIFT_TIME + SWING_TIME + DOWN_TIME);
-    double wt = std::fmod(t - 2.0, cycleTime);
-    if (wt < 0.0)
-      wt += cycleTime;
+    const double walkTime = t - 2.0;
+    const double leftPhase = wrap01(walkTime / GAIT_CYCLE_TIME);
+    const double rightPhase = wrap01(leftPhase + 0.5);
 
-    double s0 = SHIFT_TIME;
-    double s1 = s0 + SWING_TIME;
-    double s2 = s1 + DOWN_TIME;
-    double s3 = s2 + SHIFT_TIME;
-    double s4 = s3 + SWING_TIME;
-
-    if (wt < s0) {
-      supportFoot = "left";
-      swingFoot = "right-prep";
-    } else if (wt < s1) {
-      supportFoot = "left";
-      swingFoot = "right";
-    } else if (wt < s2) {
-      supportFoot = "left";
-      swingFoot = "right-down";
-    } else if (wt < s3) {
-      supportFoot = "right";
-      swingFoot = "left-prep";
-    } else if (wt < s4) {
+    if (leftPhase >= STANCE_FRACTION) {
       supportFoot = "right";
       swingFoot = "left";
+    } else if (rightPhase >= STANCE_FRACTION) {
+      supportFoot = "left";
+      swingFoot = "right";
     } else {
-      supportFoot = "right";
-      swingFoot = "left-down";
+      supportFoot = "double";
+      swingFoot = "none";
     }
   }
 
@@ -492,27 +659,17 @@ void debugWalkState(Supervisor *robot) {
             << "[walk-debug] t=" << t;
   if (rootPos) {
     std::cout << " root=(" << rootPos[0] << ", " << rootPos[1] << ", " << rootPos[2] << ")"
-              << " dRoot=(" << dx << ", " << dy << ", " << dz << ")";
+              << " dx=" << dx
+              << " forward=" << forwardDelta
+              << " rootDelta=(" << dx << ", " << dy << ", " << dz << ")"
+              << " stepDelta=(" << stepDx << ", " << stepDy << ", " << stepDz << ")"
+              << " stepForward=" << stepForwardDelta;
   } else {
     std::cout << " root=(unavailable)";
   }
-  if (leftFootPos) {
-    std::cout << " leftFoot=(" << leftFootPos[0] << ", " << leftFootPos[1] << ", " << leftFootPos[2] << ")";
-  } else {
-    std::cout << " leftFoot=(unavailable)";
-  }
-  if (rightFootPos) {
-    std::cout << " rightFoot=(" << rightFootPos[0] << ", " << rightFootPos[1] << ", " << rightFootPos[2] << ")";
-  } else {
-    std::cout << " rightFoot=(unavailable)";
-  }
-  if (rpy) {
-    std::cout << " imu=(" << rpy[0] << ", " << rpy[1] << ", " << rpy[2] << ")";
-  } else {
-    std::cout << " imu=(unavailable)";
-  }
   std::cout << " support=" << supportFoot
             << " swing=" << swingFoot
+            << " turn=" << turnCommand
             << " L(h/k/a)=" << poseValue(lastAppliedPose, "left_hip_pitch") << "/"
             << poseValue(lastAppliedPose, "left_knee_pitch") << "/"
             << poseValue(lastAppliedPose, "left_ankle_pitch")
@@ -520,6 +677,12 @@ void debugWalkState(Supervisor *robot) {
             << poseValue(lastAppliedPose, "right_knee_pitch") << "/"
             << poseValue(lastAppliedPose, "right_ankle_pitch")
             << std::endl;
+
+  if (rootPos && !warnedNoForward && t >= 5.0 && forwardDelta < 0.03) {
+    std::cout << "[walk-debug] WARNING: forward progress is still small/backward after 5s. "
+              << "Check HIP_FORWARD_DIR and the L/R hip/knee/ankle pitch sign constants." << std::endl;
+    warnedNoForward = true;
+  }
 }
 
 int main() {
@@ -553,31 +716,8 @@ int main() {
   for (size_t i = 0; i < motorNames.size(); ++i)
     registerMotor(&robot, timestep, motorNames[i]);
 
-  if (DEBUG_WALK) {
-    leftFootGps = robot.getGPS("left_foot_gps");
-    if (leftFootGps) {
-      leftFootGps->enable(timestep);
-      std::cout << "found sensor: left_foot_gps" << std::endl;
-    } else {
-      std::cout << "WARNING missing sensor: left_foot_gps" << std::endl;
-    }
-
-    rightFootGps = robot.getGPS("right_foot_gps");
-    if (rightFootGps) {
-      rightFootGps->enable(timestep);
-      std::cout << "found sensor: right_foot_gps" << std::endl;
-    } else {
-      std::cout << "WARNING missing sensor: right_foot_gps" << std::endl;
-    }
-
-    bodyImu = robot.getInertialUnit("body_imu");
-    if (bodyImu) {
-      bodyImu->enable(timestep);
-      std::cout << "found sensor: body_imu" << std::endl;
-    } else {
-      std::cout << "WARNING missing sensor: body_imu" << std::endl;
-    }
-  }
+  std::cout << "joint steering enabled: DEFAULT_TURN_COMMAND=" << DEFAULT_TURN_COMMAND
+            << " (positive turns left, negative turns right, 0 walks straight)" << std::endl;
 
   while (robot.step(timestep) != -1) {
     applyWalkPose(&robot);

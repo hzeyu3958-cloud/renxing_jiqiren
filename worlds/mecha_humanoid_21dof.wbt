@@ -5,12 +5,13 @@ EXTERNPROTO "../protos/MechaHumanoid21.proto"
 WorldInfo {
   title "Mecha Humanoid 21 DOF"
   basicTimeStep 16
+  gravity 9.81
   contactProperties [
     ContactProperties {
       material1 "foot"
       material2 "walk_surface"
       coulombFriction [
-        1.2
+        10.0 10.0
       ]
       bounce 0
     }
@@ -415,7 +416,7 @@ Solid {
 }
 MechaHumanoid21 {
   translation 0 0 0.93
-  rotation 0 0 1 0
+  rotation 0 0 1 -1.57079632679
   name "MechaHumanoid21"
   controller "walk_controller"
   locked FALSE
