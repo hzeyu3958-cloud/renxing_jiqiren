@@ -1012,16 +1012,16 @@ PROTO MechaHumanoid21 [
                           jointParameters HingeJointParameters {
                             anchor 0 0 -0.16
                             axis 0 1 0
-                            minStop -0.6
-                            maxStop 0.6
+                            minStop -0.85
+                            maxStop 0.85
                           }
                           device [
                             RotationalMotor {
                               name "left_ankle_pitch"
-                              minPosition -0.6
-                              maxPosition 0.6
-                              maxVelocity 4
-                              maxTorque 60
+                              minPosition -0.85
+                              maxPosition 0.85
+                              maxVelocity 8
+                              maxTorque 80
                             }
                             PositionSensor {
                               name "left_ankle_pitch_sensor"
@@ -1423,16 +1423,16 @@ PROTO MechaHumanoid21 [
                           jointParameters HingeJointParameters {
                             anchor 0 0 -0.16
                             axis 0 1 0
-                            minStop -0.6
-                            maxStop 0.6
+                            minStop -0.85
+                            maxStop 0.85
                           }
                           device [
                             RotationalMotor {
                               name "right_ankle_pitch"
-                              minPosition -0.6
-                              maxPosition 0.6
-                              maxVelocity 4
-                              maxTorque 60
+                              minPosition -0.85
+                              maxPosition 0.85
+                              maxVelocity 8
+                              maxTorque 80
                             }
                             PositionSensor {
                               name "right_ankle_pitch_sensor"
